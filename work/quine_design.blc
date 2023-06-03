@@ -1,0 +1,21 @@
+preparation: 332133
+
+: print-0 2321 213 313
+
+: print-1 2321 213 313
+
+: print-middle 2321 ( just print-0 and print-1 ) 313
+
+: print-print-0 2321 ( just print-0 and print-1 ) 313
+
+: print-print-1 2321 ( just print-0 and print-1 ) 313
+
+: print-start 2321 333 ( a series of calls ) 13
+
+: print-end 2321 ( a series of 2dup call-top/bottom ) 33313
+
+'print-0 'print-1 print-start
+'print-print-0 'print-print-1 print-start
+print-middle
+'print-print-0 'print-print-1 print-end
+'print-0 'print-1 print-end

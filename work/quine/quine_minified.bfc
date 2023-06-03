@@ -1,0 +1,33 @@
+: / _ . + - * _ ( ; ' _ &
+: , ! . + ! . -ONE - ! + ;
+: > / THIRTY-FOUR , ;
+: ) FOURTY-THREE EIGHTY-SIX ONE + EIGHTY-SIX + ;
+: $ / SEVENTY-TWO , > )
+$ ) / )
+$ % ! ,
+    DEFS DEFS DEFS
+$ "
+    DATA DATA DATA
+$ : ! &
+$ ; FOUR + FIVE + FOUR . FIVE .
+$ ? -ONE * -
+$ < ( ONE . . ; ONE . ONE - : ONE + . ; & ONE . +
+    ! * * ?
+$ @ < TWENTY-SIX ? SIXTY-THREE '
+$ A @
+$ B / ! . THREE ? TWO , , SEVENTY-TWO ,
+$ C B
+    THIRTY-TWO ' : FIFTY-SEVEN -
+    A '
+$ D / ! . 3 ? TWO , , FIFTY-TWO , ! ,
+$ E : . THREE . D ONE ? : . ( < E
+$ F THREE + E
+$ G /
+    ! . "
+    : SEVENTY-SIX F
+    ; C F
+    THIRTY-TWO ' THIRTY-SEVEN '
+    ONE ?
+    C F
+    ; ONE ? SEVENTY-SIX F
+G

@@ -1,0 +1,53 @@
+: , . @ ! . @ -ONE - . ! ;
+
+: def I THIRTY-FOUR , ;
+
+: ) FOURTY-THREE EIGHTY-SIX ONE ! EIGHTY-SIX ! ;
+
+: : I SEVENTY-TWO , def )
+
+: ) I )
+
+    DEFS DEFS DEFS
+
+: populate
+
+    DATA DATA DATA
+
+: dup . pick
+
+: swap FOUR ! FIVE ! FOUR @ FIVE @
+
+: + -ONE * -
+
+: ?ret!ret leq ONE @ @ swap ONE @ ONE - dup ONE ! @ swap pick ONE @ !
+    . * * +
+
+: printer-then? ?ret!ret TEN + SIXTY-THREE
+
+: printer-if printer-then? NINETY-SIX
+
+: (variable); I . @ THREE + TWO , , SEVENTY-TWO ,
+
+: 'printer (variable);
+    THIRTY-TWO emit dup FIFTY-SEVEN -
+    printer-if
+    emit emit
+
+: zero THIRTY-TWO emit zero-emmiter emit
+
+: call I . @ 3 + TWO , , FIFTY-TWO , . ,
+
+: print-with; dup ONE + swap @ dup THREE @ call leq ?ret!ret print-with;
+
+: print-with THREE ! print-with;
+
+: main I
+    . @ populate
+    dup SEVENTY-SIX print-with
+    swap 'printer print-with
+    zero
+    'printer print-with
+    swap SEVENTY-SIX print-with
+
+main
