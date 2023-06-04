@@ -17,7 +17,7 @@ challenges:
 
 1. Create a ``cat`` program that terminates on end of file.
 
-2. Decode the `word/hint.bin`_ file and make a program that prints its contents.
+2. Decode the `work/hint.bin`_ file and make a program that prints its contents.
 
 3. Create a program that prints the first n primes, reading n from the user,
    where n < 2000.
@@ -74,12 +74,12 @@ Working around the preprocessor
 Once you found a working bit pattern like the one in `work/quine.blc`_ you are
 basically set. The rule of thumb is to never use digits in identifiers, since
 those must be written exactly the same way every time. This leaves only the
-numbers to take care of, but those are parsed using C's ``atoi`` function, which
-parses only as long as it has digits, and then retrns. This means that we can
+numbers to take care of. They are parsed using C's ``atoi`` function, which
+parses only as long as it has digits and then retrns. This means that we can
 just put some non-digit character and anything in the same word will be ignored.
-For example herea are some words that would be interpreted as the same numbers::
+For example here are some words that would be interpreted as the same numbers::
 
-  0 == .0 == 0. == 000.2137 == 0asdf
+  0 == .0 == 0. == 000.2137 == 0asdf == . (if . is not a defined word)
   21 == 00021 == 21.37 == 21as8f0s9
 
 This gives us a lot of leeway in terms of matching numbers in our program to a
@@ -99,6 +99,7 @@ happen.
 **Examples in further sections will ignore the preprocessor since working around
 it is trivial.**
 
+.. _work/quine.blc: ./work/quine.blc
 
 Execution
 =========
@@ -131,10 +132,10 @@ for them, their closes Forth equivalents.
 ``Q`` : ``PARSE-NAME EVALUATE`` : compiled
   Performs an evaluation step: consumes a word from the program and evaluates
   it, compiles it or compiles it as a number, based on its definition or lack
-  thereof.
+  thereof. If there are no more words in the program terminate execution.
 
 ``@`` : ``@`` : compiled
-  Consumes an address from the stack and pushes a value in memory at that
+  Consumes an address from the stack and pushes a value from memory at that
   address.
 
 ``!`` : ``!`` : compiled
@@ -182,9 +183,9 @@ keeps the position of the top of the stack of return addresses. Second cell must
 be zero at all times.
 
 These are followed by empty unused cells perfect for variables, up until cell
-32, where definitions of the primitives are stored, taking up space up to cell
-84. Between them on cells 41-44 sits code responsible for the main execution
-loop.
+32 where definitions of the primitives are stored, occupying space up to cell
+84. Between the definitions on cells 41-44 sits code responsible for the main
+execution loop.
 
 Finally all of this is capped by 512 cells of the return stack (data stack is
 separate from memory), and the allocation pointer starts pointing to cell 597
@@ -198,7 +199,7 @@ Execution follows an **instruction pointer** which starts on cell 43, the code
 responsible for the main execution loop. On each execution step the following
 happens:
 
-1. Value pointed to by the IP is interpreted as an addres to an opcode.
+1. Value pointed to by the IP is interpreted as an addres of an opcode.
 
 2. IP gets incremented.
 
@@ -227,7 +228,7 @@ word from program and do an appropriate action, and call, in this case the main
 loop again. This simple loop repeats until it consumes the whole program, and
 then terminates execution.
 
-Let's look at an example program (ignoring the preprocessor)::
+Let's look at an example program::
 
   : I Q @ ! - * / leq? ; emit getc pick
   : square 0 pick * ;
@@ -236,7 +237,7 @@ Let's look at an example program (ignoring the preprocessor)::
 
 Use of ``square`` in the body of ``main`` doesn't execute it but compiles a call
 to it since ``square`` is a compiled word. Use of ``main`` calls it because it's
-an immediate word. The whole program should emit a square of 7 - 49 -
+an immediate word. The whole program should emit a square of 7: 49,
 corresponding to an ascii character ``1``.
 
 **In further examples the declaration of 13 primitives will be ommited.**
@@ -303,7 +304,7 @@ We end up with a function that takes one argument, fetches the RSP, subtracts
 the argument from it*, and stores the result back in RSP. As long as the
 argument is 0 or 1 it will work as we want it to.
 
-\*Actually it subtracts RPS from argument, and then multiplies by -1 to correct
+\*Actually it subtracts RSP from argument, and then multiplies by -1 to correct
 for that.
 
 Terminating ``cat``
@@ -322,15 +323,15 @@ While it takes input and produces output as expected it segfaults instead of
 exiting clearly. Let's examine why that happens.
 
 When ``?ret`` finally succeeds it exits the instance of ``cat;`` that called it
-into whatever called ``cat;``. If that was the first iteration then it exits to
-``main``, in which case no return stack jumping was done yet and we can simply
-return from ``main`` to the main execution loop which will safely consume the
-rest of the program and exit. The other possiblity is that it returns from a
-recursive call, in which case the return stack has been reset with ``85 1 !``
-and we can't just return to the main execution loop anymore. Fortunately we know
-that after ``main`` is called the rest or the program is just a big string of
-ones and zeros to satisfy the preprocessor, so we can manually consume it, and
-try consuming another word to terminate the program::
+out to whatever called ``cat;``. If that was the first iteration then it exits
+to ``main``, in which case no return stack jumping was done yet and we can
+simply return from ``main`` to the main execution loop which will safely
+consume the rest of the program and exit. The other possiblity is that it
+returns from a recursive call, in which case the return stack has been reset
+with ``85 1 !`` and we can't just return to the main execution loop anymore.
+Fortunately we know that after ``main`` is called the rest or the program is
+just a big string of ones and zeros to satisfy the preprocessor, so we can
+manually consume it, and try consuming another word to terminate the program::
 
   : dup 0 pick ;
   : ?ret 1 @ - -1 * 1 ! ;
@@ -420,11 +421,11 @@ Loading the program
 To distinguish between brainfuck commands and comments we will have to recognise
 these ASCII values:
 
-=== === === === === === === === ===
- +   -   >   <   ,   .   [   ]   ;
-=== === === === === === === === ===
-43  45  62  60  44  46  91  93  59
-=== === === === === === === === ===
+==== ==== === === === === === === ===
+ \+   \-   >   <   ,   .   [   ]   ;
+==== ==== === === === === === === ===
+ 43   45  62  60  44  46  91  93  59
+==== ==== === === === === === === ===
 
 Let's start by defining a stopping condition, that is: check for a semicolon. If
 it happens we compile an additional 0 and jump to a brainfuck execution
@@ -445,7 +446,7 @@ it and move on. Here addition and multiplication are used as logical ``or`` and
 Our loading loop now is simply to get a byte, maybe terminate loading, maybe
 compile it, drop it, reset the return stack and repat::
 
-  : load-program; ;? bf-com? drop reset load-program;
+  : load-program; getc ;? bf-com? drop reset load-program;
 
 
 Executing simple commands
@@ -455,7 +456,7 @@ Our program will be manipulating the brainfuck state: the instruction pointer
 stored on the stack, the data pointer stored in cell 0 of memory and the
 brainfuck tape stored in the leftover memory after loading the program.
 
-Command handlers will expect the instruction pointer on the stack, and only
+Command handlers will expect the instruction pointer on the stack and only
 activate when the command is correct. ::
 
   : +? dup @ 43 = ?ret 0 @ @ 1 + 0 @ ! ;
@@ -472,7 +473,7 @@ Executing looping commands
 At this point we need to introduce a new piece of state: a skip counter, stored
 in cell 5. When it's above one it means we are not executing the program but
 skipping over commands between ``[`` and ``]``. We will have two separate
-interpretation branches, one for each of the interpretation modes.
+interpretation branches, one for each of the modes of interpretation.
 
 To facilitate jumping backward we will leave addresses of entered blocks on the
 stack so no complicated backtracking logic is required. ::
@@ -506,7 +507,7 @@ counter if it's one, which I will explain later. ::
     5 @ 1 <= ?ret 0 5 !
     +? -? >? <? ,? .? [? ]? ;
 
-Skipping mode branc is significantly simpler::
+Skipping mode branch is significantly simpler::
 
   : skip? 5 @ 1 >= ?ret [-skip? ]-skip? ;
 
@@ -527,7 +528,7 @@ The whole solution is in `solutions/brainfuck.bfc`_, and once again, it's
 significantly different from my actual solution in `work/frainbuck.bfc`_.
 
 .. _solutions/brainfuck.bfc: ./solutions/brainfuck.bfc
-.. _work/brainfuck.bfc: ./work/brainfuck.bfc
+.. _work/frainbuck.bfc: ./work/frainbuck.bfc
 
 
 Why does skip counter work?
